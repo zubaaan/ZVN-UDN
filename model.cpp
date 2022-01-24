@@ -1,45 +1,12 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "Worker.h"
 
-const double toGrad = 180 / M_PI;
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+Worker::Worker(QObject *parent) : QObject(parent)
 {
-    ui->setupUi(this);
 
-    worker = new Worker(this);
-    connect(this, SIGNAL(startWorker(initialData)),
-            worker, SLOT(runWork(initialData)));
 }
 
-MainWindow::~MainWindow()
+void Worker::simulate()
 {
-    delete ui;
-}
-
-void MainWindow::on_pushButt_start_clicked()
-{
-    initialData initData;
-    initData.y_T = ui->lineEdit_y_T->text().toDouble();
-    initData.y_M = ui->lineEdit_y_M->text().toDouble();
-    initData.z_M = ui->lineEdit_z_M->text().toDouble();
-    initData.x_C1 = ui->lineEdit_x_C1->text().toDouble();
-    initData.x_C2 = ui->lineEdit_x_C2->text().toDouble();
-    initData.dt = ui->lineEdit_deltaT->text().toDouble();
-    initData.T_ob = ui->lineEdit_T_ob->text().toDouble();
-    initData.D_OBN = ui->lineEdit_D_OBN->text().toDouble();
-    initData.T_D = ui->lineEdit_T_D->text().toDouble();
-    initData.V_G = ui->lineEdit_V_G->text().toDouble();
-    initData.V_C = ui->lineEdit_V_C->text().toDouble();
-    initData.sigma_coord = ui->lineEdit_sigma_coord->text().toDouble();
-    initData.sigma_speed = ui->lineEdit_sigma_speed->text().toDouble();
-    initData.sigma_pilot = ui->lineEdit_sigma_pilot->text().toDouble();
-    initData.phi_M = ui->lineEdit_phi_M->text().toDouble();
-    initData.N_k = ui->lineEdit_N_k->text().toDouble();
-
-    emit startWorker(initData);
 ////    ui->progressBar->setValue(0);
 //    double
 //            y_T = ui->lineEdit_y_T->text().toDouble(),
@@ -177,46 +144,4 @@ void MainWindow::on_pushButt_start_clicked()
 //            .arg(y_M).arg(z_M).arg(x_C1).arg(x_C2).arg(V_G).arg(V_C).arg(N_k).arg(dt).arg(T_ob).arg(phi_M)
 //            .arg(D_OBN).arg(T_D).arg(sigma_coord).arg(sigma_speed).arg(sigma_pilot).arg(W_DN);
 //    ui->textBrowser->append(out);
-}
-
-void MainWindow::anim_()
-{
-    QMetaObject::invokeMethod(ui->progressBar,         // obj
-                                     "setValue",         // member: don't put parameters
-                                     Qt::QueuedConnection,     // connection type
-                                     Q_ARG(int, static_cast<int>(N*100/N_k)));     // val1
-//    if (ui->progressBar->value() == 100) ui->progressBar->setValue(0);
-//    int i = ui->progressBar->value();
-//    i++; ui->progressBar->setValue(i);
-}
-
-void MainWindow::initThread()
-{
-    // Создание потока
-    QThread* thread = new QThread;
-    Animation* animation = new Animation();
-    // Передаем права владения "рабочим" классом, классу QThread.
-    animation->moveToThread(thread);
-    ui->progressBar->moveToThread(thread);
-
-    // Связываем сигнал об ошибки со слотом обработки ошибок(не показан).
-//                connect(worker, SIGNAL(error(QString)), this, SLOT(errorHandler(QString)));
-
-    // Условие выхода
-    connect(this,SIGNAL(stopAnim()),animation,SLOT(stopAnim()));
-    // Анимация
-    connect(animation, SIGNAL(next()),this,SLOT(anim_()), Qt::DirectConnection);
-
-
-    // Соединяем сигнал started потока, со слотом process "рабочего" класса, т.е. начинается выполнение нужной работы.
-    QObject::connect(thread, SIGNAL(started()), animation, SLOT(process()));
-
-    // По завершению выходим из потока, и удаляем рабочий класс
-    QObject::connect(animation, SIGNAL(finished()), thread, SLOT(quit()));
-    QObject::connect(animation, SIGNAL(finished()), animation, SLOT(deleteLater()));
-
-    // Удаляем поток, после выполнения операции
-    QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-
-    thread->start();
 }

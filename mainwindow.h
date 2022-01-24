@@ -2,6 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "animation.h"
+#include <math.h>
+#include <QDebug>
+#include <QTime>
+#include <ctime>
+#include <qmath.h>
+#include <QThread>
+#include "Worker.h"
 
 namespace Ui {
 class MainWindow;
@@ -15,18 +23,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QVector<QPolygonF> guidanceTriangle(QPointF target_coords, QPointF interc_coords,
-                                      QPointF target_speed, qreal interc_speed);
-
-    QPolygonF setVect(QPointF startPoint, QPointF endPoint);
-    QPointF toBasis(QPolygonF vect);
-    qreal scalarMultVect(QPointF vect1, QPointF vect2);
-    qreal vectAbs(QPolygonF vect);
-    qreal vectAbs(QPointF vect);
-    qreal angleBetweenVectors(QPointF a, QPointF b);
     void initThread();
 
 signals:
+    void startWorker(initialData initData);
     void stopAnim();
 
 private slots:
@@ -36,6 +36,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     double N = 0, N_k = 0;
+    Worker *worker;
 };
 
 #endif // MAINWINDOW_H

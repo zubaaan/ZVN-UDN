@@ -19,8 +19,7 @@ void Animation::process()
 {
     while(!stop)
     {
-        qDebug() << "next";
-        QThread::msleep(1);
+        QThread::msleep(100);
         QApplication::processEvents();
         emit next();
     }

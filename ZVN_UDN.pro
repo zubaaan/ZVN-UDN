@@ -20,10 +20,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    animation.cpp
+    animation.cpp \
+    Worker.cpp
 
 HEADERS  += mainwindow.h \
-    animation.h
+    animation.h \
+    common.h \
+    Worker.h
 
 FORMS    += mainwindow.ui
 
